@@ -6,10 +6,12 @@ public class Movement : MonoBehaviour
 {
     public float MovementSpeed = 10f;
     public float RotateSpeed = 10f;
-    // Start is called before the first frame update
-    void Start()
+    public float jump = 10f;
+    Rigidbody rb;
+
+    void Awake()
     {
-        
+        rb = GetComponent<Rigidbody>();
     }
 
     // Update is called once per frame
@@ -30,6 +32,15 @@ public class Movement : MonoBehaviour
         if (Input.GetKey(KeyCode.D))
         {
             transform.Rotate(Vector3.up, RotateSpeed * Time.deltaTime);
+
         }
+        
+    }
+    void FixedUpdate()
+    {
+         if (Input.GetKeyDown("space"))
+            {
+            rb.AddForce(transform.up * jump);
+            }
     }
 }
