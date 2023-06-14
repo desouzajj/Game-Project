@@ -4,46 +4,37 @@ using UnityEngine;
 
 public class Movement : MonoBehaviour
 {
-    public float MovementSpeed = 10f;
-    public float RotateSpeed = 10f;
-    public float jump = 10f;
-    public Rigidbody rb;
-    
 
-    void Awake()
+    public CharacterController controller;
+    public Transform cam;
+
+    public float speed = 10f;
+
+    public float turnSmoothTime = 0.1f;
+    float turnSmoothVelocity;
+
+    void Start()
     {
-        rb = GetComponent<Rigidbody>();
+        Cursor.lockState = CursorLockMode.Locked;
     }
-
     // Update is called once per frame
     void Update()
     {
-        if (Input.GetKey(KeyCode.W))
-        {
-            transform.Translate(Vector3.forward * MovementSpeed * Time.deltaTime);     
-        }
-        if (Input.GetKey(KeyCode.S))
-        {
-            transform.Translate(-Vector3.forward * MovementSpeed * Time.deltaTime);
-        }
-        if (Input.GetKey(KeyCode.A))
-        {
-            transform.Rotate(Vector3.up, -RotateSpeed * Time.deltaTime);
-        }
-        if (Input.GetKey(KeyCode.D))
-        {
-            transform.Rotate(Vector3.up, RotateSpeed * Time.deltaTime);
 
+        float horizontal = Input.GetAxisRaw("Horizontal");
+        float vertical = Input.GetAxisRaw("Vertical");
+        Vector3 direction = new Vector3(horizontal, 0f, vertical).normalized;
+
+        if(direction.magnitude >= 0.1f)
+        {
+            float targetAngle = Mathf.Atan2(direction.x, direction.z) * Mathf.Rad2Deg + cam.eulerAngles.y;
+            float angle = Mathf.SmoothDampAngle(transform.eulerAngles.y, targetAngle, ref turnSmoothVelocity, turnSmoothTime);
+            transform.rotation = Quaternion.Euler(0f, angle, 0f);
+
+            Vector3 moveDir = Quaternion.Euler(0f, targetAngle, 0f) * Vector3.forward;
+            controller.Move(moveDir.normalized * speed * Time.deltaTime);
         }
         
     }
-    void FixedUpdate()
-    {
-         if (Input.GetKeyDown("space"))
-            {
-            rb.AddForce(transform.up * jump);
-            //Debug.Log("Jump");
-            }
-         
-    }
+
 }
